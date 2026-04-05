@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card text-center" style="max-width: 400px; margin: 4rem auto; padding: 2rem;">
+    <!-- Tab Controls -->
+    <div style="display: flex; border-bottom: 2px solid #e0e0e0; margin-bottom: 1.5rem;">
+        <button id="tabLogin" class="auth-tab active-tab" onclick="switchTab('login')">Login</button>
+        <button id="tabRegister" class="auth-tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginSection">
+        <h2 style="margin-bottom: 0.5rem;">Welcome Back</h2>
+        <p style="color: #666; margin-bottom: 1.5rem;">Sign in to access your saved trips.</p>
+        <form id="loginForm">
+            <div class="form-group" style="text-align: left;">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;" id="loginBtn">Login</button>
+        </form>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerSection" style="display: none;">
+        <h2 style="margin-bottom: 0.5rem;">Create Account</h2>
+        <p style="color: #666; margin-bottom: 1.5rem;">Start saving trips across devices.</p>
+        <form id="registerForm">
+            <div class="form-group" style="text-align: left;">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label for="regPassword">Password (min 6 chars)</label>
+                <input type="password" id="regPassword" required minlength="6">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem; background-color: #2b4eff; border-color: #1e3acc;" id="regBtn">Sign Up</button>
+        </form>
+    </div>
+    
+    <div id="authMessage" style="margin-top: 1.5rem; padding: 0.75rem; border-radius: 8px; font-weight: 500; display: none;"></div>
+</div>
+
+<style>
+.auth-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px; /* Pull down over border */
+}
+.auth-tab:hover {
+    color: var(--primary-color);
+}
+.active-tab {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(tab) {
+    const loginSec = document.getElementById('loginSection');
+    const regSec = document.getElementById('registerSection');
+    const tabLog = document.getElementById('tabLogin');
+    const tabReg = document.getElementById('tabRegister');
+    const msg = document.getElementById('authMessage');
+    
+    msg.style.display = 'none';
+
+    if(tab === 'login') {
+        loginSec.style.display = 'block';
+        regSec.style.display = 'none';
+        tabLog.classList.add('active-tab');
+        tabReg.classList.remove('active-tab');
+    } else {
+        loginSec.style.display = 'none';
+        regSec.style.display = 'block';
+        tabReg.classList.add('active-tab');
+        tabLog.classList.remove('active-tab');
+    }
+}
+
+function showMessage(text, isError = false) {
+    const msg = document.getElementById('authMessage');
+    msg.style.display = 'block';
+    msg.innerText = text;
+    if(isError) {
+        msg.style.backgroundColor = '#ffebee';
+        msg.style.color = '#c62828';
+        msg.style.border = '1px solid #ef5350';
+    } else {
+        msg.style.backgroundColor = '#e8f5e9';
+        msg.style.color = '#2e7d32';
+        msg.style.border = '1px solid #66bb6a';
+    }
+}
+
+// Handle Login
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    btn.innerText = 'Authenticating...';
+    btn.disabled = true;
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    if (window.supabaseClient) {
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email, password
+        });
+        
+        if (error) {
+            showMessage(error.message, true);
+        } else {
+            showMessage("Successfully logged in! Redirecting...", false);
+            setTimeout(() => { window.location.href = '/'; }, 1000);
+        }
+    } else {
+        showMessage("Supabase not connected. Mock login successful.", false);
+        localStorage.setItem('user', JSON.stringify({ email }));
+        setTimeout(() => { window.location.href = '/'; }, 1000);
+    }
+    
+    btn.innerText = 'Login';
+    btn.disabled = false;
+});
+
+// Handle Register
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('regBtn');
+    btn.innerText = 'Creating Account...';
+    btn.disabled = true;
+    
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+
+    if (window.supabaseClient) {
+        const { data, error } = await window.supabaseClient.auth.signUp({
+            email, password
+        });
+        
+        if (error) {
+            showMessage(error.message, true);
+        } else {
+            // Check if email confirmation is required based on session return
+            if (data?.session) {
+                showMessage("Account created! Redirecting to homepage...", false);
+                setTimeout(() => { window.location.href = '/'; }, 1000);
+            } else {
+                showMessage("Success! Please check your email inbox to confirm your account before logging in.", false);
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                setTimeout(() => { switchTab('login'); }, 4000);
+            }
+        }
+    } else {
+        showMessage("Supabase not connected. Mock Registration successful.", false);
+        localStorage.setItem('user', JSON.stringify({ email }));
+        setTimeout(() => { window.location.href = '/'; }, 1000);
+    }
+    
+    btn.innerText = 'Sign Up';
+    btn.disabled = false;
+});
+</script>
+{% endblock %}

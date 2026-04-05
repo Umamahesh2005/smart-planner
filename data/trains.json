@@ -1,0 +1,37 @@
+[
+  {"train_number":"10001","train_name":"Karnataka Express","source_city":"Bangalore","destination_city":"Mysore","departure_time":"06:00","arrival_time":"09:00","duration":"3h","price":150,"class_type":"Chair Car","days_available":"Daily"},
+  {"train_number":"10002","train_name":"Malnad Express","source_city":"Bangalore","destination_city":"Mangalore","departure_time":"22:00","arrival_time":"07:00","duration":"9h","price":350,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10003","train_name":"North Karnataka Express","source_city":"Bangalore","destination_city":"Hubli","departure_time":"21:00","arrival_time":"06:00","duration":"9h","price":400,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10004","train_name":"Vijayanagara Express","source_city":"Bangalore","destination_city":"Hospet","departure_time":"20:00","arrival_time":"07:00","duration":"11h","price":420,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10005","train_name":"Shimoga Express","source_city":"Bangalore","destination_city":"Shimoga","departure_time":"23:00","arrival_time":"06:00","duration":"7h","price":300,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10006","train_name":"Davangere Intercity","source_city":"Bangalore","destination_city":"Davangere","departure_time":"14:00","arrival_time":"20:00","duration":"6h","price":250,"class_type":"Chair Car","days_available":"Daily"},
+  {"train_number":"10006-R","train_name":"Davangere Return Intercity","source_city":"Davangere","destination_city":"Bangalore","departure_time":"06:00","arrival_time":"12:00","duration":"6h","price":250,"class_type":"Chair Car","days_available":"Daily"},
+  {"train_number":"10007","train_name":"Hassan Express","source_city":"Bangalore","destination_city":"Hassan","departure_time":"07:30","arrival_time":"12:00","duration":"4.5h","price":200,"class_type":"Chair Car","days_available":"Daily"},
+  {"train_number":"10008","train_name":"Tumkur Passenger","source_city":"Bangalore","destination_city":"Tumkur","departure_time":"09:00","arrival_time":"10:30","duration":"1.5h","price":80,"class_type":"General","days_available":"Daily"},
+  {"train_number":"10009","train_name":"Kolar Passenger","source_city":"Bangalore","destination_city":"Kolar","departure_time":"07:00","arrival_time":"09:00","duration":"2h","price":80,"class_type":"General","days_available":"Daily"},
+  {"train_number":"10010","train_name":"Chikkamagaluru Express","source_city":"Bangalore","destination_city":"Chikkamagaluru","departure_time":"22:30","arrival_time":"06:30","duration":"8h","price":350,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10011","train_name":"Bijapur Express","source_city":"Bangalore","destination_city":"Bijapur","departure_time":"19:30","arrival_time":"07:30","duration":"12h","price":500,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10012","train_name":"Gulbarga Express","source_city":"Bangalore","destination_city":"Gulbarga","departure_time":"20:00","arrival_time":"08:00","duration":"12h","price":500,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10013","train_name":"Bidar Express","source_city":"Bangalore","destination_city":"Bidar","departure_time":"19:00","arrival_time":"07:30","duration":"12.5h","price":550,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10014","train_name":"Raichur Express","source_city":"Bangalore","destination_city":"Raichur","departure_time":"21:30","arrival_time":"07:00","duration":"9.5h","price":400,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10015","train_name":"Bellary Express","source_city":"Bangalore","destination_city":"Bellary","departure_time":"22:00","arrival_time":"08:00","duration":"10h","price":420,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10016","train_name":"Chitradurga Passenger","source_city":"Bangalore","destination_city":"Chitradurga","departure_time":"10:00","arrival_time":"15:00","duration":"5h","price":200,"class_type":"General","days_available":"Daily"},
+  {"train_number":"10017","train_name":"Ramanagara Passenger","source_city":"Bangalore","destination_city":"Ramanagara","departure_time":"08:00","arrival_time":"09:00","duration":"1h","price":40,"class_type":"General","days_available":"Daily"},
+  {"train_number":"10018","train_name":"Udupi Express","source_city":"Bangalore","destination_city":"Udupi","departure_time":"21:30","arrival_time":"06:30","duration":"9h","price":380,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10019","train_name":"Karwar Express","source_city":"Bangalore","destination_city":"Karwar","departure_time":"18:00","arrival_time":"08:00","duration":"14h","price":600,"class_type":"Sleeper","days_available":"Daily"},
+
+  {"train_number":"10020","train_name":"Cauvery Express","source_city":"Mysore","destination_city":"Bangalore","departure_time":"18:00","arrival_time":"21:00","duration":"3h","price":150,"class_type":"Chair Car","days_available":"Daily"},
+  {"train_number":"10021","train_name":"Mysore Passenger","source_city":"Mysore","destination_city":"Mandya","departure_time":"07:00","arrival_time":"08:00","duration":"1h","price":50,"class_type":"General","days_available":"Daily"},
+  {"train_number":"10022","train_name":"Chamarajanagar Express","source_city":"Mysore","destination_city":"Chamarajanagar","departure_time":"06:00","arrival_time":"09:00","duration":"3h","price":120,"class_type":"General","days_available":"Daily"},
+
+  {"train_number":"10023","train_name":"Karavali Express","source_city":"Mangalore","destination_city":"Karwar","departure_time":"06:00","arrival_time":"12:00","duration":"6h","price":250,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10024","train_name":"Coastal Express","source_city":"Mangalore","destination_city":"Udupi","departure_time":"08:00","arrival_time":"10:00","duration":"2h","price":100,"class_type":"General","days_available":"Daily"},
+
+  {"train_number":"10025","train_name":"Belgaum Express","source_city":"Hubli","destination_city":"Belgaum","departure_time":"11:00","arrival_time":"14:00","duration":"3h","price":150,"class_type":"Chair Car","days_available":"Daily"},
+  {"train_number":"10026","train_name":"Gadag Express","source_city":"Hubli","destination_city":"Gadag","departure_time":"09:00","arrival_time":"10:30","duration":"1.5h","price":70,"class_type":"General","days_available":"Daily"},
+  {"train_number":"10027","train_name":"Haveri Passenger","source_city":"Hubli","destination_city":"Haveri","departure_time":"08:30","arrival_time":"10:00","duration":"1.5h","price":60,"class_type":"General","days_available":"Daily"},
+  {"train_number":"10028","train_name":"Bagalkot Express","source_city":"Hubli","destination_city":"Bagalkot","departure_time":"12:00","arrival_time":"16:00","duration":"4h","price":180,"class_type":"Sleeper","days_available":"Daily"},
+  {"train_number":"10029","train_name":"Sirsi Express","source_city":"Hubli","destination_city":"Sirsi","departure_time":"07:00","arrival_time":"11:00","duration":"4h","price":180,"class_type":"Sleeper","days_available":"Daily"},
+
+  {"train_number":"10030","train_name":"Yadgir Express","source_city":"Gulbarga","destination_city":"Yadgir","departure_time":"09:00","arrival_time":"11:00","duration":"2h","price":90,"class_type":"General","days_available":"Daily"}
+]

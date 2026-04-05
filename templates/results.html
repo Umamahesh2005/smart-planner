@@ -1,0 +1,945 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Main Results Wrapper with Fade-In -->
+    <div id="resultsContent" class="results-container" style="display: none; padding: 20px 0;">
+    <!-- Clean Minimalist Destination Header -->
+    <div style="text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 36px; margin-bottom: 2.5rem; border: 1px solid #e2e8f0;">
+        <h1 id="resHeroTitle" style="color: #1e293b; margin: 0; font-size: 3.5rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1.1;">Karnataka</h1>
+        <p style="color: #6366f1; margin: 1rem 0 0; font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa-solid fa-location-dot"></i> <span id="resSubLoc">India</span>
+        </p>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; background: #fff; padding: 1.2rem 2rem; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+             <div style="width: 32px; height: 32px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-check" style="color: #16a34a; font-size: 0.9rem;"></i>
+             </div>
+             <h3 style="margin: 0; color: #334155; font-weight: 700;" data-i18n="res_success">Your AI Trip is Ready!</h3>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button id="saveTripBtn" class="btn-primary-small" style="background:var(--primary-color); border-radius:12px; font-size:0.85rem; padding:10px 18px;" onclick="document.getElementById('buddyModal').style.display='flex'">
+                <i class="fa-solid fa-people-arrows-left-right"></i> Save & Find Buddies
+            </button>
+            <button id="savePdfBtn" class="btn-secondary" style="font-size: 0.7rem; padding: 6px 12px; border-color: #ddd; color: #666; background: #fff;">
+                <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
+        </div>
+    </div>
+    
+    <div class="section-card" style="text-align: center;">
+        <h2 class="modern-title" style="justify-content: center;"><i class="fa-solid fa-wallet" style="color: #6366f1;"></i> <span data-i18n="res_budget">Budget Analysis</span></h2>
+        <div id="resBudget" style="margin-bottom: 0;"></div>
+    </div>
+
+    <div class="section-card" style="background: transparent; border: none; box-shadow: none; padding-left: 0; padding-right: 0; text-align: center;">
+        <h2 class="modern-title" style="justify-content: center;"><i class="fa-solid fa-cloud-sun" style="color: #3b82f6;"></i> <span data-i18n="res_weather">Weather Forecast</span></h2>
+        <div id="resWeather" style="display: flex; gap: 1.5rem; overflow-x: auto; padding: 0.5rem 0 2rem 0; scrollbar-width: none; justify-content: center;"></div>
+    </div>
+
+    <!-- Interactive Map Section -->
+    <div id="map" style="height: 400px; width: 100%; border-radius: 12px; box-shadow: var(--card-shadow); margin-bottom: 2rem; z-index: 1;"></div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1.1fr; gap: 3rem; margin-bottom: 3rem;">
+        <div class="section-card" style="margin-bottom: 0;">
+            <h2 class="modern-title"><i class="fa-solid fa-map-location-dot" style="color: #6366f1;"></i> <span data-i18n="res_itinerary">Day-by-Day Itinerary</span></h2>
+            <div id="resItinerary" style="position: relative; padding-left: 0;">
+                <!-- Vertical Line Container -->
+                <div id="itineraryLine" style="position: absolute; left: 14px; top: 20px; bottom: 20px; width: 3px; background: linear-gradient(to bottom, var(--primary-color) 0%, #e2e8f0 100%); display: none;"></div>
+                <div id="itineraryContent"></div>
+            </div>
+        </div>
+        
+        <!-- Sidebar (Hotels & Food) -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <div class="section-card" style="margin-bottom: 0; background: #f8fafc; border: 1px solid #f1f5f9;">
+                <h2 class="modern-title" style="font-size: 1.5rem;"><i class="fa-solid fa-bed" style="color: #6366f1;"></i> <span data-i18n="res_hotels">Recommended Stays</span></h2>
+                <div id="resHotels" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Professional Hotel cards injected here -->
+                </div>
+            </div>
+            
+            <div id="foodSection" class="section-card" style="margin-bottom: 0; background: #fffcf0; border: 1px solid #fef3c7; display: none;">
+                <h2 class="modern-title" style="font-size: 1.5rem;"><i class="fa-solid fa-utensils" style="color: #d97706;"></i> <span data-i18n="res_food">Local Culinary Gems</span></h2>
+                <div id="resFood" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                    <!-- Local food items injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 1rem; margin-bottom: 3rem;">
+        <div class="section-card" style="margin-bottom: 0; border-top: 6px solid #16a34a; border-left: none; text-align: center;">
+            <h2 class="modern-title" style="font-size: 1.4rem; justify-content: center;"><i class="fa-solid fa-bus" style="color: #16a34a;"></i> <span data-i18n="res_bus">Smart Bus Fare</span></h2>
+            <div id="resSmartBus">
+                <p style="color:#64748b; font-size:0.9rem;">Calculating optimal routes...</p>
+            </div>
+        </div>
+        <div id="trainContainer" class="section-card" style="margin-bottom: 0; border-top: 6px solid #ea580c; border-left: none; display: none; text-align: center;">
+            <h2 class="modern-title" style="font-size: 1.4rem; justify-content: center;"><i class="fa-solid fa-train" style="color: #ea580c;"></i> <span data-i18n="res_train">Train Connectivity</span></h2>
+            <div id="resTrain" style="display: flex; justify-content: center;"></div>
+        </div>
+    </div>
+    
+    <!-- Connection Section -->
+    <div id="buddyDiscoverySection" class="section-card" style="background: #fdfdfd; border-radius: 32px; border: 2px solid #eff6ff; text-align: center;">
+        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 2.5rem;">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <h2 class="modern-title" style="justify-content: center; margin-bottom: 0.5rem;"><i class="fa-solid fa-people-pulling" style="color: #3b82f6;"></i> Travelling Connect</h2>
+                <p style="color: #64748b; margin: 0; font-size: 1rem;">Meet fellow travelers heading to <span id="buddyDestTitle" style="color:#1e293b; font-weight:700;">destination</span></p>
+            </div>
+            <a href="/connect" class="btn-secondary-small" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; font-weight:700; width: fit-content;">Explore Community</a>
+        </div>
+        
+        <div id="buddyList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            <!-- Buddy cards injected here -->
+        </div>
+    </div>
+
+    <!-- Feedback Section -->
+    <div class="section-card fadeInPage" style="margin-top: 3rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: none;">
+        <div style="text-align: center; max-width: 600px; margin: 0 auto; padding: 1rem 0;">
+            <h2 style="color: white; margin-bottom: 0.5rem; font-size: 1.8rem;"><i class="fa-solid fa-star" style="color: #fbbf24;"></i> Rate Your Experience</h2>
+            <p style="color: #94a3b8; margin-bottom: 2rem;">How helpful was this AI Trip Plan? Your feedback helps us improve.</p>
+            
+            <div id="starRating" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; font-size: 2rem;">
+                <i class="fa-regular fa-star star-btn" data-value="1" style="cursor: pointer; transition: color 0.2s;"></i>
+                <i class="fa-regular fa-star star-btn" data-value="2" style="cursor: pointer; transition: color 0.2s;"></i>
+                <i class="fa-regular fa-star star-btn" data-value="3" style="cursor: pointer; transition: color 0.2s;"></i>
+                <i class="fa-regular fa-star star-btn" data-value="4" style="cursor: pointer; transition: color 0.2s;"></i>
+                <i class="fa-regular fa-star star-btn" data-value="5" style="cursor: pointer; transition: color 0.2s;"></i>
+            </div>
+            
+            <div id="feedbackForm">
+                <textarea id="feedbackComment" placeholder="Any suggestions to make this plan better?" style="width: 100%; min-height: 100px; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: inherit; margin-bottom: 1.5rem; resize: none;"></textarea>
+                <button id="submitFeedbackBtn" onclick="submitFeedback()" class="btn-primary" style="width: auto; padding: 12px 30px; border-radius: 12px; font-weight: 700; background: #6366f1;">Submit My Feedback</button>
+                <div id="feedbackSuccess" style="display: none; padding: 1rem; background: #064e3b; color: #34d399; border-radius: 12px; font-weight: 700; border: 1px solid #065f46;">
+                    <i class="fa-solid fa-circle-check"></i> Thank you! Your feedback has been saved.
+                </div>
+            </div>
+        </div>
+    </div>
+    </div><!-- End of #resultsContent -->
+
+<div id="errorState" style="display: none; text-align: center; padding: 4rem;">
+    <h2 style="color: red;">Oops, something went wrong.</h2>
+    <p id="errorMessage" style="color: #666; margin-bottom: 2rem;"></p>
+    <a href="{{ url_for('index') }}" class="btn-primary" style="display: inline-block; text-decoration: none;">Return to Home</a>
+</div>
+
+<!-- Buddy Save Modal -->
+<div id="buddyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--white); padding:2.5rem; border-radius:24px; max-width:450px; width:90%; box-shadow:0 15px 50px rgba(0,0,0,0.3);">
+        <h2 style="text-align:center; color:var(--primary-color); margin-bottom:1rem;"><i class="fa-solid fa-people-arrows-left-right"></i> Buddy Connect</h2>
+        <p style="text-align:center; color:#666; font-size:0.95rem; margin-bottom:1.5rem;">Save your trip and discover other travelers heading to the same destination!</p>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display:block; font-weight:700; margin-bottom:0.5rem; font-size:0.9rem;">Your Display Name</label>
+            <input type="text" id="buddyName" placeholder="e.g. Rahul Sharma" style="width:100%; padding:12px; border-radius:12px; border:1.5px solid #eee; box-sizing:border-box; font-size:0.95rem;">
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display:block; font-weight:700; margin-bottom:0.5rem; font-size:0.9rem;">WhatsApp/Phone Number (Hidden)</label>
+            <input type="text" id="buddyPhone" placeholder="e.g. +91 9876543210" style="width:100%; padding:12px; border-radius:12px; border:1.5px solid #eee; box-sizing:border-box; font-size:0.95rem;">
+            <p style="font-size:0.75rem; color:#888; margin-top:0.4rem;"><i class="fa-solid fa-lock"></i> Visible only if you both mutually click "Connect".</p>
+        </div>
+        
+        <div style="margin-bottom: 2rem; display:flex; align-items:center; gap:10px; background:#f0f9ff; padding:12px; border-radius:12px; border:1px solid #bae6fd;">
+            <input type="checkbox" id="buddyToggle" checked style="width:18px; height:18px; cursor:pointer;">
+            <label for="buddyToggle" style="font-size:0.85rem; color:#0369a1; cursor:pointer;"><b>Find me on Travelling Connect</b></label>
+        </div>
+        
+        <div style="display:flex; gap:1rem;">
+            <button class="btn-secondary" style="flex:1;" onclick="document.getElementById('buddyModal').style.display='none'">Cancel</button>
+            <button class="btn-primary" style="flex:1;" onclick="saveTripToSupabase()">Save & Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Modal -->
+<div id="receiptModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--white); padding:2rem; border-radius:24px; max-width:500px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+        <div id="receiptContent" style="padding: 1rem;">
+            <h2 style="text-align:center; color:var(--primary-color); margin-bottom:0.5rem;"><i class="fa-solid fa-check-circle"></i> Booking Confirmed</h2>
+            <hr style="border:0; border-top:1px dashed #ccc; margin: 1.5rem 0;">
+            <p><strong><i class="fa-solid fa-hotel"></i> Hotel:</strong> <span id="rHotel"></span></p>
+            <p><strong><i class="fa-solid fa-location-dot"></i> Destination:</strong> <span id="rDest"></span></p>
+            <p><strong><i class="fa-solid fa-money-bill-wave"></i> Amount Paid:</strong> ₹<span id="rAmount"></span></p>
+            <p><strong><i class="fa-solid fa-barcode"></i> Receipt ID:</strong> <span id="rId"></span></p>
+            <hr style="border:0; border-top:1px dashed #ccc; margin: 1.5rem 0;">
+            <p style="text-align:center; font-size:0.9rem; color:#666;">Thank you for booking with Eureka AI Planner. Show this receipt at check-in.</p>
+        </div>
+        <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+            <button class="btn-secondary" style="flex:1;" onclick="document.getElementById('receiptModal').style.display='none'">Close</button>
+            <button class="btn-primary" style="flex:1;" onclick="downloadReceipt()">Download PDF</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<!-- html2pdf.js for clean PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Razorpay Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+// Logic to load data from localStorage
+document.addEventListener('DOMContentLoaded', () => {
+    const dataStr = localStorage.getItem('tripResults');
+    const weatherStr = localStorage.getItem('weatherResults');
+    
+    if(!dataStr) {
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').innerText = 'No trip data found. Please plan a trip first.';
+        return;
+    }
+    
+    try {
+        const data = JSON.parse(dataStr);
+        window.renderedTripData = data;
+        document.getElementById('resultsContent').style.display = 'block';
+        
+        const displayDestination = data.destination_translated || data.destination;
+        
+        if (resHeroTitle) {
+            resHeroTitle.innerText = displayDestination;
+            resSubLoc.innerText = displayDestination;
+        }
+
+        let bData = data.budget_analysis || {};
+        const budgetContainer = document.getElementById('resBudget');
+        if(bData && typeof bData === 'object') {
+                let travelCost = bData.estimated_travel_cost_inr;
+                let stayCost = bData.estimated_accommodation_cost_inr;
+                let foodCost = bData.estimated_food_cost_inr;
+                let actsCost = bData.estimated_activities_cost_inr;
+
+                // Smart fallback calculation if AI omitted detailed splits
+                if (!travelCost && !stayCost && !foodCost && !actsCost && bData.recommended_budget_inr) {
+                    const total = bData.recommended_budget_inr;
+                    const dayCount = (data.itinerary && data.itinerary.length > 0) ? data.itinerary.length : 3;
+                    const nights = Math.max(1, dayCount - 1);
+
+                    // 1. Try to get real hotel price from recommendations
+                    let hotelPPS = 0;
+                    if (data.hotels && data.hotels.length > 0) {
+                        hotelPPS = data.hotels[0].price_per_night_inr || 0;
+                    }
+
+                    if (hotelPPS > 0) {
+                        stayCost = hotelPPS * nights;
+                        // Distribute remaining budget
+                        const remaining = Math.max(0, total - stayCost);
+                        foodCost = Math.round(remaining * 0.4);
+                        travelCost = Math.round(remaining * 0.4);
+                        actsCost = Math.max(0, remaining - foodCost - travelCost);
+                    } else {
+                        // Global fallback if no hotel data
+                        stayCost = Math.round(total * 0.40);
+                        foodCost = Math.round(total * 0.30);
+                        travelCost = Math.round(total * 0.20);
+                        actsCost = total - stayCost - foodCost - travelCost;
+                    }
+                }                let bHTML = `
+            <div style="background: #fff; padding: 2rem; border-radius: 20px; border: 1px solid #f1f5f9; box-shadow: 0 10px 20px rgba(0,0,0,0.02); margin: 1rem auto 0 auto; max-width: 500px;">
+                <div style="text-align: center; margin-bottom: 2rem; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); padding: 2rem; border-radius: 20px; border: 1px solid rgba(99, 102, 241, 0.1);">
+                    <div style="font-size: 0.85rem; color: #6366f1; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px;">Recommended Total Budget</div>
+                    <div style="font-size: 3.2rem; font-weight: 900; color: #1e293b; letter-spacing:-1px;">₹${bData.recommended_budget_inr || '?'}</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="stat-pill" style="justify-content: space-between; padding: 12px 18px;">
+                        <span><i class="fa-solid fa-bus" style="color:#10b981;"></i> Travel</span>
+                        <span style="color:#1e293b; font-weight:800;">₹${travelCost || '--'}</span>
+                    </div>
+                    <div class="stat-pill" style="justify-content: space-between; padding: 12px 18px;">
+                        <span><i class="fa-solid fa-bed" style="color:#6366f1;"></i> Stay</span>
+                        <span style="color:#1e293b; font-weight:800;">₹${stayCost || '--'}</span>
+                    </div>
+                    <div class="stat-pill" style="justify-content: space-between; padding: 12px 18px;">
+                        <span><i class="fa-solid fa-utensils" style="color:#f59e0b;"></i> Food</span>
+                        <span style="color:#1e293b; font-weight:800;">₹${foodCost || '--'}</span>
+                    </div>
+                    <div class="stat-pill" style="justify-content: space-between; padding: 12px 18px;">
+                        <span><i class="fa-solid fa-ticket" style="color:#ec4899;"></i> Acts</span>
+                        <span style="color:#1e293b; font-weight:800;">₹${actsCost || '--'}</span>
+                    </div>
+                </div>
+            </div>`;
+            
+            if (bData.notes) {
+                bHTML += `
+                <div style="margin: 1.5rem auto 0 auto; background: #fff8e1; border-left: 6px solid #ffc107; padding: 1.5rem; border-radius: 8px; max-width: 500px;">
+                    <h4 style="color: #b28900; margin-bottom: 0.5rem; font-size: 1.1rem;"><i class="fa-solid fa-circle-info"></i> ${window.getLangStr('bdg_notes')}</h4>
+                    <p style="color: #4a3800; font-size: 1rem; line-height: 1.5; margin: 0;">${bData.notes}</p>
+                </div>`;
+            }
+            budgetContainer.innerHTML = bHTML;
+        } else {
+            budgetContainer.innerText = bData;
+        }
+        
+        // Render Itinerary
+        const itinEl = document.getElementById('resItinerary');
+        let itinHTML = '';
+        let itHTML = '';
+        if(Array.isArray(data.itinerary)) {
+            data.itinerary.forEach((day, index) => {
+                let acts = '';
+                if (Array.isArray(day.activities)) {
+                    acts = day.activities.map(act => `
+                        <div class="stat-pill" style="margin-right: 8px; margin-bottom: 8px; background: #fff; border: 1px solid #f1f5f9;">
+                            <i class="fa-solid fa-check" style="color:#10b981; font-size:0.7rem;"></i> ${typeof act === 'string' ? act : (act.name || JSON.stringify(act))}
+                        </div>
+                    `).join('');
+                }
+                
+                let dayImg = "https://images.unsplash.com/photo-1544834830-671e36f6d0f6?auto=format&fit=crop&w=400&q=80";
+                const theme = (day.theme || "").toLowerCase();
+                if(theme.includes('temple') || theme.includes('culture')) dayImg = "https://images.unsplash.com/photo-1579532527230-681534063df4?auto=format&fit=crop&w=400&q=80";
+                if(theme.includes('beach')) dayImg = "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=400&q=80";
+                if(theme.includes('nature') || theme.includes('trek')) dayImg = "https://images.unsplash.com/photo-1620173834206-c029bf322844?auto=format&fit=crop&w=400&q=80";
+
+                itHTML += `
+                <div class="timeline-item" style="position: relative; margin-bottom: 2rem; padding-left: 3rem;">
+                    <div class="timeline-dot" style="position: absolute; left: 6px; top: 18px; width: 18px; height: 18px; background: #fff; border: 4px solid var(--primary-color); border-radius: 50%; z-index: 10; box-shadow: 0 0 0 4px #eff6ff;"></div>
+                    <div style="display: flex; gap: 1.2rem; background: #fff; padding: 1rem; border-radius: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.03); align-items: flex-start;">
+                        <div style="flex-shrink: 0; width: 90px; height: 90px; border-radius: 14px; background-image: url('${dayImg}'); background-size: cover; background-position: center;"></div>
+                        <div style="flex: 1; min-height: 90px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                                <h3 style="color: #1e293b; margin: 0; font-size: 1.1rem; font-weight: 800;">Day ${day.day}: ${day.theme || 'Exploration'}</h3>
+                                <div class="stat-pill" style="background:#f5f3ff; color:#6366f1; border:none; padding:3px 8px; font-size:0.7rem;">₹${day.day_cost_inr || '?'}</div>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
+                                ${acts}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+        }
+        document.getElementById('itineraryContent').innerHTML = itHTML;
+        const lineEl = document.getElementById('itineraryLine');
+        if (itHTML) lineEl.style.display = 'block';
+        
+        // Render Hotels
+        const hotelsEl = document.getElementById('resHotels');
+        let hotelsHTML = '';
+        if(Array.isArray(data.hotels)) {
+            data.hotels.forEach(hotel => {
+                hotelsHTML += `
+                <div style="background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:0.5rem;">
+                        <div>
+                            <h4 style="margin:0; font-size:1.05rem; font-weight:800; color:#1e293b;">${hotel.name || 'Local Hotel'}</h4>
+                            <p style="margin:0; font-size:0.75rem; color:#6366f1; font-weight:700;"><i class="fa-solid fa-map-pin"></i> ${hotel.area || 'Unknown Area'}</p>
+                        </div>
+                        <span class="stat-pill" style="background:#fef9c3; color:#a16207; font-size:0.7rem; padding:2px 8px;"><i class="fa-solid fa-star"></i> ${hotel.rating || 4.0}</span>
+                    </div>
+                    <p style="margin-bottom: 1rem; font-weight: 800; color:#6366f1; font-size:1.1rem;">₹${hotel.price_per_night_inr || 'Varies'}</p>
+                    <p style="font-size: 0.8rem; color:#64748b; line-height:1.4; margin-bottom:1.2rem;">${hotel.reason || ''}</p>
+                    <button class="btn-primary-small" style="width: 100%; border-radius: 12px; font-weight:700;" onclick="bookHotel('${(hotel.name || 'Local Hotel').replace(/'/g, "\\'")}', '${hotel.price_per_night_inr || 2000}')">Book Now</button>
+                </div>
+                `;
+            });
+        }
+        hotelsEl.innerHTML = hotelsHTML;
+        
+        // Render Local Food
+        const foodSection = document.getElementById('foodSection');
+        const foodEl = document.getElementById('resFood');
+        if (Array.isArray(data.local_food) && data.local_food.length > 0) {
+            foodSection.style.display = 'block';
+            let foodHTML = '';
+            // Show only the top 3 items for a clean UI
+            data.local_food.slice(0, 3).forEach(f => {
+                let badgeColor = "#10b981"; // Veg Green
+                if (f.category === 'nonveg') badgeColor = "#ef4444"; // Non-veg Red
+                if (f.category === 'mixed') badgeColor = "#6366f1"; // Mixed Blue
+                if (f.category === 'sweet') badgeColor = "#f59e0b"; // Sweet Gold
+                
+                foodHTML += `
+                <div style="background: white; padding: 1.2rem; border-radius: 16px; border: 1px solid #fef3c7; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.05); margin-bottom: 0.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:0.4rem;">
+                        <h4 style="margin:0; font-size:1rem; font-weight:800; color:#1e293b;">${f.dish_name}</h4>
+                        <span class="stat-pill" style="background:${badgeColor}15; color:${badgeColor}; font-size:0.65rem; padding:2px 8px; border:none; text-transform:uppercase;">${f.category}</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color:#4b5563; line-height:1.4; margin:0;">${f.description}</p>
+                </div>
+                `;
+            });
+            foodEl.innerHTML = foodHTML;
+        }
+        
+        // Render Smart Bus Fare Logic
+        const smartBusEl = document.getElementById('resSmartBus');
+        if (data.total_distance_km) {
+            const dist = data.total_distance_km;
+            const getKSRTCFare = (d) => Math.round((d * 1.6) / 10) * 10;
+            const getLocalFare = (d) => d <= 10 ? 15 : (d <= 30 ? 30 : 50);
+            const getTimeEst = (d) => (d / 50).toFixed(1) + " hrs";
+
+            let smartHTML = '';
+            if (dist > 80) {
+                const ksrtcDist = dist * 0.8;
+                const localDist = dist * 0.2;
+                const ksrtcFare = getKSRTCFare(ksrtcDist);
+                const localFare = getLocalFare(localDist);
+
+                smartHTML = `
+                <div style="background: #f0fdf4; border: 1px solid #dcfce7; padding: 1.5rem; border-radius: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                        <span style="font-weight: 700; color: #166534;">KSRTC Express Route</span>
+                        <span style="font-size: 1.2rem; font-weight: 800; color: #15803d;">₹${ksrtcFare}</span>
+                    </div>
+                    <div class="stat-pill" style="margin-bottom: 1.5rem; background: white; border: 1px solid #dcfce7;">
+                        <i class="fa-solid fa-route"></i> ${ksrtcDist.toFixed(1)} km | ~${getTimeEst(ksrtcDist)}
+                    </div>
+                    <div style="border-top: 1px dashed #bbf7d0; padding-top: 1.2rem; margin-bottom: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700; color: #166534;">Local Bus Connect</span>
+                            <span style="font-weight: 800; color: #15803d;">₹${localFare}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #16a34a; color: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+                        <span style="font-weight: 700;">Total Est. Travel Cost</span>
+                        <span style="font-size: 1.25rem; font-weight: 900;">₹${ksrtcFare + localFare}</span>
+                    </div>
+                    <a href="https://ksrtc.in/oprs-web/" target="_blank" class="btn-primary-small" style="width: 100%; text-align: center; background: #15803d; border-radius: 12px; font-weight: 700;">Book KSRTC Tickets</a>
+                </div>`;
+            } else {
+                const fare = getLocalFare(dist);
+                smartHTML = `
+                <div style="background: #f0fdf4; border: 1px solid #dcfce7; padding: 1.5rem; border-radius: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                        <span style="font-weight: 700; color: #166534;">Direct Bus/Local</span>
+                        <span style="font-size: 1.2rem; font-weight: 800; color: #15803d;">₹${fare}</span>
+                    </div>
+                    <div class="stat-pill" style="margin-bottom: 1.5rem; background: white; border: 1px solid #dcfce7;">
+                        <i class="fa-solid fa-route"></i> ${dist.toFixed(1)} km | ~${getTimeEst(dist)}
+                    </div>
+                    <a href="https://ksrtc.in/oprs-web/" target="_blank" class="btn-primary-small" style="width: 100%; text-align: center; background: #15803d; border-radius: 12px; font-weight: 700;">Check Bus Schedule</a>
+                </div>`;
+            }
+            smartBusEl.innerHTML = smartHTML;
+        } else {
+            smartBusEl.innerHTML = `<p style="color:#94a3b8; font-size:0.9rem;">Transport data unavailable for this route.</p>`;
+        }
+
+        // Render Train Travel
+        const trainContainer = document.getElementById('trainContainer');
+        const trainEl = document.getElementById('resTrain');
+        if (data.train_details) {
+            if(trainContainer) trainContainer.style.display = 'block';
+            if(trainEl) trainEl.style.display = 'block';
+            const t = data.train_details;
+            
+            const trainHTML = `
+            <div style="background: #fffaf5; border: 1px solid #ffedd5; padding: 1.5rem; border-radius: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                    <span style="font-weight: 800; color: #9a3412; font-size: 1.15rem;">${t.train_name}</span>
+                    <span class="stat-pill" style="background:#ffedd5; color:#ea580c; border:none; padding:4px 12px; font-size:0.8rem;">#${t.train_number}</span>
+                </div>
+                <div style="font-size: 0.95rem; color: #431407; margin-bottom: 1rem; font-weight: 600;">
+                    <i class="fa-solid fa-train" style="font-size:0.8rem; opacity:0.5;"></i> ${t.departure_time} (${t.source_city}) ➔ ${t.arrival_time} (${t.destination_city})
+                </div>
+                <div style="display: flex; gap: 8px; margin-bottom: 1.5rem;">
+                    <span class="stat-pill" style="background: white;"><i class="fa-regular fa-clock"></i> ${t.duration}</span>
+                    <span class="stat-pill" style="background: white;"><i class="fa-solid fa-chair"></i> ${t.class_type}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <span style="font-weight: 700; color: #9a3412;">Ticket Price</span>
+                    <span style="font-size: 1.4rem; font-weight: 900; color: #ea580c;">₹${t.price}</span>
+                </div>
+                <div style="display: flex; gap: 0.8rem; justify-content: center;">
+                    <a href="https://www.irctc.co.in/nget/train-search" target="_blank" class="btn-primary-small" style="flex: 2; text-align: center; background: #ea580c; border-radius: 12px; font-weight:700;">Book Ticket</a>
+                    <a href="https://enquiry.indianrail.gov.in/mntes/" target="_blank" class="btn-secondary-small" style="flex: 1; text-align: center; border-radius: 12px; font-weight:700; background:white;">Track</a>
+                </div>
+            </div>`;
+            trainEl.innerHTML = trainHTML;
+            trainEl.style.width = "100%";
+            trainEl.style.maxWidth = "450px";
+            trainEl.style.margin = "0 auto";
+        }
+        
+        // Render Weather
+        async function fetchAndRenderWeather(city) {
+            const wEl = document.getElementById('resWeather');
+            if(!wEl) return;
+            
+            let weatherData = null;
+            const weatherStr = localStorage.getItem('weatherResults');
+            
+            if(weatherStr && weatherStr !== 'undefined') {
+                try { weatherData = JSON.parse(weatherStr); } catch(e) { console.error(e); }
+            }
+            
+            // Fallback: Fetch if missing
+            if(!weatherData || !weatherData.forecast) {
+                wEl.innerHTML = '<div style="padding:1rem; color:#64748b;"><i class="fa-solid fa-spinner fa-spin"></i> Fetching real-time forecast...</div>';
+                try {
+                    const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+                    weatherData = await res.json();
+                    if(weatherData && !weatherData.error) {
+                        localStorage.setItem('weatherResults', JSON.stringify(weatherData));
+                    }
+                } catch(err) { console.error("Weather fetch failed:", err); }
+            }
+
+            if(weatherData && Array.isArray(weatherData.forecast)) {
+                let wHTML = '';
+                weatherData.forecast.forEach(f => {
+                    let tip = "";
+                    const desc = (f.description || "").toLowerCase();
+                    if(desc.includes('rain') || desc.includes('drizzle')) tip = "☔ Bring Umbrella";
+                    else if(desc.includes('sun') || desc.includes('clear')) tip = "☀️ Sunny day";
+                    else if(desc.includes('cloud')) tip = "⛅ Partly Cloudy";
+                    else tip = "🌡️ Check Temp";
+
+                    wHTML += `
+                    <div class="card" style="min-width: 160px; text-align: center; margin-bottom: 0.5rem; padding: 1.2rem; background: white; border-radius: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                        <p style="font-weight: 700; color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem;">${f.date}</p>
+                        <img src="http://openweathermap.org/img/wn/${f.icon}@2x.png" style="width: 50px; height: 50px;" alt="weather icon">
+                        <h3 style="margin: 0.2rem 0; font-size: 1.5rem; font-weight: 800; color: #1e293b;">${Math.round(f.temp)}°C</h3>
+                        <p style="font-size: 0.8rem; color: #94a3b8; text-transform: capitalize; margin-bottom: 0.8rem;">${f.description}</p>
+                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary-color); background: #eff6ff; padding: 4px 8px; border-radius: 8px;">${tip}</div>
+                    </div>
+                    `;
+                });
+                wEl.innerHTML = wHTML;
+            } else {
+                wEl.innerHTML = '<p style="padding:1rem; color:#94a3b8;">Weather forecast unavailable for this location.</p>';
+            }
+        }
+        
+        fetchAndRenderWeather(data.destination_translated || data.destination);
+        
+        // Auto-speak trip summary
+        setTimeout(() => {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                
+                const curLang = localStorage.getItem('eureka_lang') || 'en';
+                const destName = data.destination_translated || data.destination;
+                const daysCount = Array.isArray(data.itinerary) ? data.itinerary.length : 3;
+                let budgetVal = (data.budget_analysis && data.budget_analysis.recommended_budget_inr) ? data.budget_analysis.recommended_budget_inr : "";
+                
+                let summaryText = "";
+                if (curLang === 'kn') {
+                    summaryText = `ನಿಮ್ಮ ${destName} ಪ್ರವಾಸದ ಯೋಜನೆ ಇಲ್ಲಿದೆ. ನಾನಿಲ್ಲಿ ನಿಮಗಾಗಿ ${daysCount} ದಿನಗಳ ಸುಂದರ ಪ್ರವಾಸವನ್ನು ಸಿದ್ಧಪಡಿಸಿದ್ದೇನೆ. ಇದಕ್ಕಾಗಿ ಅಂದಾಜು ಬಜೆಟ್ ${budgetVal ? budgetVal + ' ರೂಪಾಯಿಗಳು' : 'ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಲೆಕ್ಕಹಾಕಲಾಗಿದೆ'}. ನಿಮ್ಮ ಪ್ರಯಾಣವನ್ನು ಆನಂದಿಸಿ!`;
+                } else {
+                    summaryText = `Here is your trip planner to ${destName}. I have crafted a ${daysCount} day adventure for you. The recommended budget for this trip is around ${budgetVal ? budgetVal + ' rupees' : 'calculated automatically'}. Enjoy your journey!`;
+                }
+                
+                const utterance = new SpeechSynthesisUtterance(summaryText);
+                utterance.lang = curLang === 'kn' ? 'kn-IN' : 'en-IN';
+                utterance.rate = 1.0;
+                
+                try {
+                    window.speechSynthesis.speak(utterance);
+                } catch(err) { console.warn("Speech Synthesis failed:", err); }
+            }
+        }, 800);
+        
+        // Setup Save PDF functionality
+        document.getElementById('savePdfBtn').addEventListener('click', () => {
+            const element = document.getElementById('resultsContent');
+            const mapEl = document.getElementById('map');
+            
+            // Fix html2canvas scroll bug & protect against Leaflet CORS hang
+            window.scrollTo(0, 0);
+            if (mapEl) mapEl.style.display = 'none';
+
+            const opt = {
+                margin:       0.5,
+                filename:     `Trip_to_${data.destination}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: document.documentElement.offsetWidth },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            // Use html2pdf
+            html2pdf().set(opt).from(element).save().then(() => {
+                if (mapEl) mapEl.style.display = 'block'; // Restore map
+            });
+        });
+
+        // Setup Save to Dashboard functionality
+        if (window.supabaseClient) {
+            window.supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    const saveBtn = document.getElementById('saveTripBtn');
+                    saveBtn.style.display = 'inline-block';
+                    
+                    saveBtn.addEventListener('click', async () => {
+                        try {
+                            const OriginalBtnText = saveBtn.innerHTML;
+                            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+                            saveBtn.disabled = true;
+
+                            const { data: user, error: userError } = await window.supabaseClient.auth.getUser();
+                            if (userError) throw userError;
+
+                            const { error: insertError } = await window.supabaseClient
+                                .from('saved_trips')
+                                .insert([{
+                                    user_id: user.user.id,
+                                    destination: data.destination,
+                                    destination_translated: data.destination_translated,
+                                    trip_data: data
+                                }]);
+                                
+                            if (insertError) throw insertError;
+                            
+                            saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+                            saveBtn.style.backgroundColor = '#2e7d32';
+                        } catch (err) {
+                            console.error('Error saving trip:', err);
+                            alert('Failed to save trip to dashboard.');
+                            saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Save to Dashboard';
+                            saveBtn.disabled = false;
+                        }
+                    });
+                }
+            });
+        }
+        
+    } catch(e) {
+        console.error("Results Rendering Error:", e);
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').innerText = `Data Format Error: ${e.message}. Please click 'Try Again' to refresh the AI plan.`;
+    }
+
+    // SUPABASE INTEGRATION: Save Trip Logic
+    window.saveTripToSupabase = async function() {
+        const btn = document.getElementById('btnSaveTrip');
+        const modal = document.getElementById('buddyModal');
+        const bName = document.getElementById('buddyName').value;
+        const bPhone = document.getElementById('buddyPhone').value;
+        const bToggle = document.getElementById('buddyToggle').checked;
+
+        if (!window.supabaseClient) {
+            alert("Database not connected. Please check your .env keys.");
+            return;
+        }
+
+        const { data: { session }, error: sessionError } = await window.supabaseClient.auth.getSession();
+        if (!session) {
+            alert("Please Login / Sign up first to save your trips!");
+            window.location.href = '/auth';
+            return;
+        }
+
+        const user = session.user;
+        const trip = window.renderedTripData;
+
+        if (!trip) {
+            alert("No trip data found to save.");
+            return;
+        }
+
+        // Validate if connecting
+        if (bToggle && (!bName || !bPhone)) {
+            alert("Please provide your name and phone number to find travel buddies.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('user_trips')
+                .insert([{
+                    user_id: user.id,
+                    author_name: bName || user.email.split('@')[0],
+                    phone_number: bPhone || null,
+                    destination: trip.destination || 'Unspecified',
+                    budget: trip.budget_analysis?.recommended_budget_inr || 0,
+                    days: trip.itinerary?.length || 0,
+                    people: trip.people || 2,
+                    trip_data: trip,
+                    allow_connect: bToggle
+                }]);
+
+            if (error) throw error;
+
+            modal.style.display = 'none';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved & Connected!';
+            
+            // Refresh Buddy List
+            fetchBuddiesForDestination(trip.destination);
+
+        } catch (err) {
+            console.error("Error saving trip:", err);
+            alert("Failed to save trip: " + err.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Save to My Trips';
+        }
+    };
+
+    // --- Buddy Discovery Logic ---
+    async function fetchBuddiesForDestination(dest) {
+        if (!window.supabaseClient) return;
+        
+        document.getElementById('buddyDestTitle').innerText = dest;
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        const currentUserId = session ? session.user.id : null;
+
+        const { data, error } = await window.supabaseClient
+            .from('user_trips')
+            .select('*')
+            .eq('destination', dest)
+            .eq('allow_connect', true)
+            .neq('user_id', currentUserId) // Don't show self
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        const list = document.getElementById('buddyList');
+        if (error || !data || data.length === 0) {
+            list.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #64748b; padding: 2rem;">No other public travelers found for ${dest} yet. Be the first!</div>`;
+            return;
+        }
+
+        list.innerHTML = '';
+        data.forEach(buddy => {
+            const card = document.createElement('div');
+            card.className = "card";
+            card.style = "padding: 1.5rem; background: white; border-radius: 20px; border: 1px solid #e2e8f0; position: relative; transition: transform 0.2s;";
+            card.onmouseover = () => card.style.transform = 'translateY(-5px)';
+            card.onmouseout = () => card.style.transform = 'translateY(0)';
+
+            card.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                    <div style="width: 50px; height: 50px; background: #e0e7ff; color: #4f46e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem;">
+                        ${buddy.author_name ? buddy.author_name.charAt(0).toUpperCase() : '?'}
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; color: #1e293b;">${buddy.author_name || 'Traveler'}</h4>
+                        <p style="margin: 0; font-size: 0.8rem; color: #64748b;">${buddy.days} Day Trip</p>
+                    </div>
+                </div>
+                <div id="contact_${buddy.user_id}" style="font-size: 0.9rem; color: #1e293b; margin-bottom: 1rem; font-weight: 600;">
+                    <span style="color: #94a3b8; font-weight: 400;"><i class="fa-solid fa-lock"></i> Number Hidden</span>
+                </div>
+                <button class="btn-primary-small" style="width: 100%;" onclick="connectWithBuddy('${buddy.user_id}', '${buddy.author_name}')">
+                    <i class="fa-solid fa-link"></i> Request to Connect
+                </button>
+            `;
+            list.appendChild(card);
+            
+            // Check if already connected
+            checkConnectionStatus(buddy.user_id, buddy.phone_number);
+        });
+    }
+
+    async function checkConnectionStatus(buddyId, buddyPhone) {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session) return;
+
+        // Check if both have connected
+        const { data, error } = await window.supabaseClient
+            .from('buddy_connections')
+            .select('*')
+            .or(`and(user_a.eq.${session.user.id},user_b.eq.${buddyId}),and(user_a.eq.${buddyId},user_b.eq.${session.user.id})`);
+
+        if (data && data.length > 0) {
+            const contactEl = document.getElementById(`contact_${buddyId}`);
+            if (contactEl) {
+                contactEl.innerHTML = `<i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> ${buddyPhone || 'Wait for response'}`;
+                contactEl.style.color = "#10b981";
+            }
+        }
+    }
+
+    window.connectWithBuddy = async function(buddyId, name) {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session) {
+            alert("Please login to connect with travelers!");
+            return;
+        }
+
+        try {
+            const { error } = await window.supabaseClient
+                .from('buddy_connections')
+                .insert([{ user_a: session.user.id, user_b: buddyId }]);
+            
+            if (error && !error.message.includes('unique constraint')) throw error;
+
+            alert(`Connection request sent to ${name}! If they also click connect on you, their number will be revealed.`);
+            location.reload(); // Refresh to check mutual status
+        } catch (err) {
+            console.error("Connect error:", err);
+        }
+    };
+
+    // Auto-fetch bunnies if data exists
+    if (window.renderedTripData && window.renderedTripData.destination) {
+        fetchBuddiesForDestination(window.renderedTripData.destination);
+    }
+
+    // Booking and Receipt Functions
+    window.bookHotel = async function(hotelName, priceStr) {
+        try {
+            const response = await fetch('/api/create_hotel_booking', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ hotel_name: hotelName, price: priceStr })
+            });
+            const orderData = await response.json();
+            
+            if (orderData.error) {
+                alert("Payment error: " + orderData.error);
+                return;
+            }
+
+            var options = {
+                "key": orderData.key, 
+                "amount": orderData.amount, 
+                "currency": orderData.currency,
+                "name": hotelName,
+                "description": `1 Night Booking in ${window.renderedTripData.destination}`,
+                "order_id": orderData.order_id, 
+                "handler": async function (resp){
+                    try {
+                        const verifyRes = await fetch('/api/verify_hotel_booking', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                razorpay_payment_id: resp.razorpay_payment_id,
+                                razorpay_order_id: resp.razorpay_order_id,
+                                razorpay_signature: resp.razorpay_signature
+                            })
+                        });
+                        const result = await verifyRes.json();
+                        
+                        if (result.status === 'success') {
+                            // Populate and show Receipt Modal
+                            document.getElementById('rHotel').innerText = hotelName;
+                            document.getElementById('rDest').innerText = window.renderedTripData.destination;
+                            document.getElementById('rAmount').innerText = (orderData.amount / 100);
+                            document.getElementById('rId').innerText = result.receipt_id;
+                            document.getElementById('receiptModal').style.display = 'flex';
+                        } else {
+                            alert('Verification failed: ' + (result.message || 'Unknown error'));
+                        }
+                    } catch(e) {
+                        console.error("Verification exception", e);
+                        alert("Failure verifying payment.");
+                    }
+                },
+                "theme": { "color": "#4f46e5" }
+            };
+            var rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (err) {
+            console.error(err);
+            alert("Failed to initiate booking checkout.");
+        }
+    };
+
+    window.downloadReceipt = function() {
+        const element = document.getElementById('receiptContent');
+        const opt = {
+            margin:       0.5,
+            filename:     `Hotel_Receipt_${document.getElementById('rId').innerText}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    };
+
+    // Feedback Logic
+    let selectedRating = 0;
+    document.querySelectorAll('.star-btn').forEach(star => {
+        star.addEventListener('mouseover', function() {
+            const val = parseInt(this.getAttribute('data-value'));
+            highlightStars(val);
+        });
+        star.addEventListener('mouseout', function() {
+            highlightStars(selectedRating);
+        });
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.getAttribute('data-value'));
+            highlightStars(selectedRating);
+        });
+    });
+
+    function highlightStars(val) {
+        document.querySelectorAll('.star-btn').forEach(s => {
+            const sVal = parseInt(s.getAttribute('data-value'));
+            if (sVal <= val) {
+                s.classList.remove('fa-regular', 'fa-star');
+                s.classList.add('fa-solid', 'fa-star');
+                s.style.color = '#fbbf24';
+            } else {
+                s.classList.remove('fa-solid', 'fa-star');
+                s.classList.add('fa-regular', 'fa-star');
+                s.style.color = 'inherit';
+            }
+        });
+    }
+
+    window.submitFeedback = async function() {
+        if (selectedRating === 0) {
+            alert("Please select a rating before submitting.");
+            return;
+        }
+
+        const btn = document.getElementById('submitFeedbackBtn');
+        const comment = document.getElementById('feedbackComment').value;
+        const successMsg = document.getElementById('feedbackSuccess');
+        
+        // Corrected ID: resHeroTitle used as source for destination
+        const destEl = document.getElementById('resHeroTitle');
+        const dest = destEl ? destEl.innerText : "Unspecified Destination";
+
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        try {
+            const client = window.supabaseClient;
+            if (!client) {
+                throw new Error("Supabase is not initialized. Please refresh the page.");
+            }
+
+            const { data: { session } } = await client.auth.getSession();
+            const userId = session?.user?.id || null;
+
+            const { error } = await client
+                .from('trip_feedback')
+                .insert([
+                    { 
+                        user_id: userId,
+                        trip_destination: dest,
+                        rating: selectedRating,
+                        comment: comment
+                    }
+                ]);
+
+            if (error) throw error;
+
+            // Success UI
+            document.getElementById('starRating').style.display = 'none';
+            document.getElementById('feedbackComment').style.display = 'none';
+            btn.style.display = 'none';
+            successMsg.style.display = 'block';
+
+        } catch (err) {
+            console.error("Feedback error:", err);
+            alert("Could not save feedback: " + err.message);
+            btn.disabled = false;
+            btn.innerText = "Submit My Feedback";
+        }
+    };
+
+}); // Correct closing for DOMContentLoaded script block
+</script>
+{% endblock %}

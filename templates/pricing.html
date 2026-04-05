@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .pricing-container {
+        max-width: 1000px;
+        margin: 5rem auto;
+        padding: 0 1rem;
+    }
+    .pricing-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+    .pricing-header h1 {
+        font-size: 3.5rem;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+    }
+    .pricing-header p {
+        font-size: 1.2rem;
+        color: var(--text-light);
+    }
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        align-items: center;
+    }
+    .pricing-card {
+        background: var(--white);
+        border-radius: 24px;
+        padding: 3rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+    .pricing-card.pro {
+        border: 2px solid var(--primary-color);
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
+        transform: scale(1.05);
+    }
+    .pricing-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 100px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    .pricing-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .pricing-price {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+    .pricing-price span {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        font-weight: 500;
+    }
+    .pricing-features {
+        list-style: none;
+        margin: 2rem 0;
+        text-align: left;
+    }
+    .pricing-features li {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        color: var(--text-color);
+    }
+    .pricing-features li i {
+        color: var(--primary-color);
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    .btn-pricing {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .btn-free {
+        background: var(--white);
+        border: 2px solid var(--border-color);
+        color: var(--text-color);
+    }
+    .btn-free:hover {
+        border-color: var(--text-color);
+    }
+    .btn-pro {
+        background: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        color: white;
+    }
+    .btn-pro:hover {
+        background: var(--primary-hover);
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+    }
+</style>
+
+<div class="pricing-container">
+    <div class="pricing-header">
+        <h1>Travel Smarter with Eureka</h1>
+        <p>Choose the perfect plan for your travel routing needs.</p>
+    </div>
+
+    <div class="pricing-grid">
+        <!-- Free Plan -->
+        <div class="pricing-card">
+            <h2 class="pricing-title">Free Plan</h2>
+            <div class="pricing-price">₹0<span>/forever</span></div>
+            <p style="color: var(--text-light);">Essential trip planning for casual travelers.</p>
+            
+            <ul class="pricing-features">
+                <li><i class="fa-solid fa-check-circle"></i> Basic AI Routing</li>
+                <li><i class="fa-solid fa-check-circle"></i> Limited Daily Searches (3/day)</li>
+                <li><i class="fa-solid fa-check-circle"></i> Save Trips to Dashboard</li>
+                <li style="color: #bbb;"><i class="fa-solid fa-times-circle" style="color: #bbb;"></i> No Voice Assistant</li>
+                <li style="color: #bbb;"><i class="fa-solid fa-times-circle" style="color: #bbb;"></i> No Smart Recommendations</li>
+            </ul>
+
+            <button class="btn-pricing btn-free" onclick="window.location.href='/'">Current Plan</button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="pricing-card pro">
+            <div class="pricing-badge">MOST POPULAR</div>
+            <h2 class="pricing-title">Eureka Pro 👑</h2>
+            <div class="pricing-price">₹199<span>/month</span></div>
+            <p style="color: var(--text-light);">Ultimate AI power for heavy travelers and planners.</p>
+            
+            <ul class="pricing-features">
+                <li><i class="fa-solid fa-check-circle"></i> <b>Unlimited</b> Trip Plans</li>
+                <li><i class="fa-solid fa-check-circle"></i> AI Voice Assistant 🎤</li>
+                <li><i class="fa-solid fa-check-circle"></i> Smart Hotel Recommendations</li>
+                <li><i class="fa-solid fa-check-circle"></i> Live Price Alerts</li>
+                <li><i class="fa-solid fa-check-circle"></i> Premium Export Options</li>
+            </ul>
+
+            <button class="btn-pricing btn-pro" id="checkout-btn">Upgrade to Pro</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Razorpay Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+document.getElementById('checkout-btn').onclick = async function(e){
+    e.preventDefault();
+    
+    // 1. Create order on backend
+    try {
+        const response = await fetch('/api/create_razorpay_order', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const orderData = await response.json();
+        
+        if (orderData.error) {
+            console.error("Backend Gateway Error:", orderData.error);
+            alert("Payment gateway error: " + orderData.error);
+            return;
+        }
+
+        // 2. Initialize Razorpay Checkout
+        var options = {
+            "key": orderData.key, 
+            "amount": orderData.amount, 
+            "currency": orderData.currency,
+            "name": "Eureka AI Trip Planner",
+            "description": "Eureka Pro Subscription",
+            "image": "https://img.icons8.com/color/48/000000/bot.png", // Demo logo
+            "order_id": orderData.order_id, 
+            "handler": async function (response){
+                // 3. Verify Payment
+                try {
+                    const verifyRes = await fetch('/api/verify_payment', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    });
+                    
+                    const result = await verifyRes.json();
+                    if (result.status === 'success') {
+                        alert('🎉 Upgrade Successful! Welcome to Eureka Pro!');
+                        window.location.href = '/';
+                    } else {
+                        alert('Payment verification failed: ' + result.message);
+                    }
+                } catch(verificationError) {
+                    alert('Error verifying payment.');
+                    console.error(verificationError);
+                }
+            },
+            "theme": {
+                "color": "#4f46e5"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response){
+            console.error("Payment Failed:", response.error);
+            alert(response.error.description);
+        });
+        rzp1.open();
+        
+    } catch (err) {
+        console.error("Critical Checkout Error:", err);
+        alert("Failed to initiate checkout. Check your browser console for details.");
+    }
+}
+</script>
+{% endblock %}

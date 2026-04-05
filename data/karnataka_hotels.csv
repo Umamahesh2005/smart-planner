@@ -1,0 +1,31 @@
+id,city,area,name,type,price_min_inr,price_max_inr,avg_rating,amenities
+H001,Bengaluru,Majestic,Comfort Inn Majestic,budget,800,1500,3.8,"wifi,breakfast"
+H002,Bengaluru,Indiranagar,Urban Stay Indiranagar,mid-range,2500,3800,4.3,"wifi,breakfast,parking"
+H003,Bengaluru,MG Road,Luxury View MG Road,premium,4500,8000,4.6,"wifi,breakfast,pool,gym"
+H010,Mysuru,Near Palace,Palace View Lodge,budget,700,1400,3.9,wifi
+H011,Mysuru,Kalidasa Road,Mysore Comfort Residency,mid-range,2000,3200,4.2,"wifi,breakfast"
+H012,Mysuru,VV Mohalla,Regal Heights Mysore,premium,3800,6500,4.5,"wifi,breakfast,parking"
+H020,Mangaluru,Hampankatta,City Lodge Hampankatta,budget,600,1200,3.7,wifi
+H021,Mangaluru,Bejai,Coastal Comfort Bejai,mid-range,2200,3500,4.1,"wifi,breakfast"
+H022,Mangaluru,Someshwara,Seaside Retreat Someshwara,premium,4000,7500,4.4,"wifi,breakfast,sea_view"
+H030,Udupi,Near Temple,Temple Town Lodge,budget,500,1100,3.8,wifi
+H031,Udupi,Malpe,Malpe Beach Residency,mid-range,2000,3200,4.2,"wifi,breakfast,sea_view"
+H032,Udupi,Manipal,Elite Manipal Suites,premium,3800,6500,4.5,"wifi,breakfast,gym"
+H040,Gokarna,Kudle Beach,Kudle Budget Stay,budget,600,1300,3.9,wifi
+H041,Gokarna,OM Beach,OM Beach View Resort,mid-range,2200,3800,4.3,"wifi,breakfast,sea_view"
+H042,Gokarna,Main Town,Gokarna Premium Retreat,premium,4000,7500,4.6,"wifi,breakfast,parking"
+H050,Chikkamagaluru,City Center,Hilltown Lodge,budget,700,1400,3.8,wifi
+H051,Chikkamagaluru,Baba Budangiri,Budangiri Coffee Stay,mid-range,2500,3800,4.4,"wifi,breakfast,view"
+H052,Chikkamagaluru,Mullayanagiri,Peak View Resort,premium,4200,8000,4.7,"wifi,breakfast,parking"
+H060,Madikeri,Raja Seat,Raja Seat Budget Inn,budget,600,1200,3.9,wifi
+H061,Madikeri,Coorg Hills,Coorg Hills Homestay,mid-range,2200,3600,4.4,"wifi,breakfast,view"
+H062,Madikeri,Near Fort,Coorg Premium Residency,premium,4200,7800,4.6,"wifi,breakfast,parking"
+H070,Hampi,Near Virupaksha,Virupaksha Budget Stay,budget,500,1100,3.7,wifi
+H071,Hampi,Kamalapur,Kamalapur Heritage Inn,mid-range,2200,3400,4.2,"wifi,breakfast"
+H072,Hampi,Near River,River View Hampi Retreat,premium,3800,7200,4.5,"wifi,breakfast,view"
+H080,Dharmasthala,Temple Area,Dharmasthala Yatra Lodge,budget,400,900,3.8,wifi
+H081,Dharmasthala,Highway,Highway Comfort Dharmasthala,mid-range,1600,2600,4.1,"wifi,parking"
+H082,Dharmasthala,Near Nethravathi,Nethravathi Riverside Stay,premium,3500,6000,4.4,"wifi,breakfast,view"
+H090,Kukke,Temple Road,Kukke Pilgrim Lodge,budget,400,900,3.9,wifi
+H091,Kukke,Subramanya Road,Green Valley Stay,mid-range,1700,2600,4.3,"wifi,breakfast"
+H092,Kukke,River Side,Kumaradhara Riverside Retreat,premium,3500,6200,4.6,"wifi,breakfast,view"

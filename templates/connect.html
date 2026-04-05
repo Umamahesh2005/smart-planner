@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 3rem auto; padding: 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem;">
+        <div>
+            <h1 style="font-size: 2.8rem; font-weight: 800; color: #1e293b; margin: 0; display:flex; align-items:center; gap:15px;">
+                <i class="fa-solid fa-people-arrows-left-right" style="color: var(--primary-color);"></i> Travelling Connect
+                <span style="font-size: 0.8rem; background: #dcfce7; color: #16a34a; padding: 5px 12px; border-radius: 20px; vertical-align: middle;">
+                    <i class="fa-solid fa-circle" style="font-size: 0.5rem; vertical-align: middle; margin-right: 5px;" class="pulse-live"></i> LIVE
+                </span>
+            </h1>
+            <p style="color: #64748b; margin-top: 0.8rem; font-size: 1.15rem;">Find buddies, send connect requests, and unlock WhatsApp contacts mutually.</p>
+        </div>
+        <a href="/dashboard" class="btn-secondary" style="border-radius: 12px; padding: 10px 24px; text-decoration: none; font-weight: 600;">
+            <i class="fa-solid fa-chevron-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Triple Tier Layout -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2.5rem; align-items: start;">
+        
+        <!-- 1. Discovery (People you haven't pinged) -->
+        <div class="tier-section">
+            <h3 style="margin-bottom: 1.5rem; display:flex; align-items:center; gap:10px; color:#1e293b;">
+                <i class="fa-solid fa-compass" style="color: #3b82f6;"></i> Discovery
+            </h3>
+            <div id="discoveryLoading" class="searching-pulse">Searching for new travelers...</div>
+            <div id="discoveryList" class="buddy-stack"></div>
+        </div>
+
+        <!-- 2. Sent Requests (Waiting for them) -->
+        <div class="tier-section">
+            <h3 style="margin-bottom: 1.5rem; display:flex; align-items:center; gap:10px; color:#1e293b;">
+                <i class="fa-solid fa-paper-plane" style="color: #f59e0b;"></i> Sent Requests
+            </h3>
+            <div id="sentList" class="buddy-stack">
+                <div class="empty-state">No pending requests sent.</div>
+            </div>
+        </div>
+
+        <!-- 3. My Buddies (MUTUAL MATCHES - Phone Revealed) -->
+        <div class="tier-section">
+            <h3 style="margin-bottom: 1.5rem; display:flex; align-items:center; gap:10px; color:#1e293b;">
+                <i class="fa-solid fa-handshake" style="color: #10b981;"></i> My Buddies
+            </h3>
+            <div id="buddiesList" class="buddy-stack">
+                <div class="empty-state">Connect with others to unlock their numbers here!</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tier-section {
+        background: #fdfdfd;
+        padding: 1.5rem;
+        border-radius: 24px;
+        min-height: 400px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .buddy-stack { display: flex; flex-direction: column; gap: 1rem; }
+    
+    .buddy-card {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .buddy-card:hover { border-color: var(--primary-color); transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    
+    .empty-state {
+        text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 3rem 1rem; 
+        border: 1px dashed #e2e8f0; border-radius: 18px; background: #fff;
+    }
+    
+    .searching-pulse {
+        text-align: center; padding: 2rem; color: #64748b; font-size: 0.9rem;
+        animation: searchPulse 2s infinite;
+    }
+    @keyframes searchPulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    
+    .pulse-live {
+        animation: livePulse 1.5s infinite;
+    }
+    @keyframes livePulse { 0% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.4; transform: scale(0.8); } }
+    
+    .dest-tag {
+        font-size: 0.75rem; background: #eff6ff; color: #3b82f6; padding: 3px 8px; border-radius: 6px; font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!window.supabaseClient) return;
+
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (!session) {
+        window.location.href = '/auth';
+        return;
+    }
+
+    loadTripleTier(session.user.id);
+});
+
+async function loadTripleTier(userId) {
+    const discoveryEl = document.getElementById('discoveryList');
+    const sentEl = document.getElementById('sentList');
+    const buddiesEl = document.getElementById('buddiesList');
+    const loading = document.getElementById('discoveryLoading');
+
+    try {
+        // 1. Fetch Discovery (Trips where allow_connect is true and NOT mine)
+        const { data: allPublicTrips } = await window.supabaseClient
+            .from('user_trips')
+            .select('*')
+            .eq('allow_connect', true)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        // 2. Fetch MY sent/mutual connections
+        const { data: myConnections } = await window.supabaseClient
+            .from('buddy_connections')
+            .select('*')
+            .or(`user_a.eq.${userId},user_b.eq.${userId}`);
+
+        loading.style.display = 'none';
+        discoveryEl.innerHTML = '';
+        sentEl.innerHTML = '';
+        buddiesEl.innerHTML = '';
+
+        const sentIds = new Set();
+        const mutualIds = new Set();
+        const receivedIds = new Set();
+
+        // Parse mutual vs sent
+        myConnections?.forEach(conn => {
+            if (conn.user_a === userId) sentIds.add(conn.user_b);
+            if (conn.user_b === userId) receivedIds.add(conn.user_a);
+        });
+
+        // Mutual IDs are where BOTH are present
+        sentIds.forEach(id => {
+            if (receivedIds.has(id)) mutualIds.add(id);
+        });
+
+        if (!allPublicTrips || allPublicTrips.length === 0) {
+            discoveryEl.innerHTML = '<div class="empty-state">No other travelers heading anywhere public yet.</div>';
+        } else {
+            allPublicTrips.forEach(trip => {
+                const buddyId = trip.user_id;
+                
+                // --- CASE 1: MUTUAL (Buddies) ---
+                if (mutualIds.has(buddyId)) {
+                    buddiesEl.appendChild(createCard(trip, true, false));
+                }
+                // --- CASE 2: SENT (I pinged them, they haven't pinged back) ---
+                else if (sentIds.has(buddyId)) {
+                    sentEl.appendChild(createCard(trip, false, true));
+                }
+                // --- CASE 3: DISCOVERY (I haven't pinged them) ---
+                else {
+                    discoveryEl.appendChild(createCard(trip, false, false));
+                }
+            });
+        }
+
+        // Final empty checks
+        if (!sentEl.innerHTML) sentEl.innerHTML = '<div class="empty-state">No pending requests sent.</div>';
+        if (!buddiesEl.innerHTML) buddiesEl.innerHTML = '<div class="empty-state">Connect with others to unlock their numbers!</div>';
+
+    } catch (e) {
+        console.error(e);
+        discoveryEl.innerHTML = '<p style="color:red">Failed real-time discovery check.</p>';
+    }
+}
+
+function createCard(trip, isMutual, isSent) {
+    const card = document.createElement('div');
+    card.className = "buddy-card";
+    
+    let actionHtml = '';
+    if (isMutual) {
+        actionHtml = `
+            <div style="background: #f0fdf4; border: 1px solid #dcfce7; padding: 10px; border-radius: 12px; display:flex; align-items:center; gap:8px;">
+                <i class="fa-brands fa-whatsapp" style="color: #25D366; font-size:1.4rem;"></i>
+                <a href="https://wa.me/${trip.phone_number?.replace(/\D/g,'')}" target="_blank" style="color:#166534; font-weight:700; text-decoration:none;">
+                    Open WhatsApp
+                </a>
+            </div>
+        `;
+    } else if (isSent) {
+        actionHtml = `<button disabled style="width:100%; padding:10px; border-radius:12px; background:#f1f5f9; border:none; color:#94a3b8; font-size:0.85rem;">Request Sent <i class="fa-solid fa-clock"></i></button>`;
+    } else {
+        actionHtml = `<button class="btn-primary-small" style="width:100%; border-radius:12px;" onclick="connectFromPage('${trip.user_id}', '${trip.author_name}')">Let's Connect</button>`;
+    }
+
+    card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:start;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; background:#e0e7ff; color:#4338ca; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem;">
+                    ${trip.author_name ? trip.author_name.charAt(0).toUpperCase() : '?'}
+                </div>
+                <div>
+                    <h4 style="margin:0; font-size:0.95rem;">${trip.author_name || 'Traveler'}</h4>
+                    <span class="dest-tag">${trip.destination}</span>
+                </div>
+            </div>
+            ${isMutual ? '<i class="fa-solid fa-check-circle" style="color:#10b981;"></i>' : ''}
+        </div>
+        <p style="margin:0; font-size:0.75rem; color:#64748b;">${trip.days} Day Trip • Group of ${trip.people}</p>
+        ${actionHtml}
+    `;
+    return card;
+}
+
+async function connectFromPage(buddyId, name) {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (!session) return;
+    
+    try {
+        await window.supabaseClient
+            .from('buddy_connections')
+            .insert([{ user_a: session.user.id, user_b: buddyId }]);
+        
+        alert(`Request sent to ${name}! If they also connect with you, their number will appear in your "Buddies" list.`);
+        location.reload();
+    } catch (e) {
+        console.error(e);
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

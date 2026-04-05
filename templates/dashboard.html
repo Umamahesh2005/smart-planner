@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 2rem auto;">
+    <h2><i class="fa-solid fa-user"></i> My Dashboard</h2>
+    <p>Welcome back! Here are your saved trips and preferences.</p>
+    
+    <div style="margin-top: 2rem;">
+        <h3>Saved Trips</h3>
+        <div id="loadingTrips" style="margin-top: 1rem; color: #666;"><i class="fa-solid fa-spinner fa-spin"></i> Loading your trips...</div>
+        <div id="noTrips" style="display: none; margin-top: 1rem; color: #666; padding: 2rem; border: 1px dashed var(--border-color); border-radius: 8px; text-align: center;">
+            <p>You haven't saved any trips yet.</p>
+            <a href="/" class="btn-primary" style="text-decoration: none; display: inline-block; margin-top: 1rem;">Plan a new trip</a>
+        </div>
+        <div id="savedTrips" style="display: none; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <!-- Fetched from Supabase automatically -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    if (window.supabaseClient) {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        
+        if (!session) {
+            window.location.href = '/auth'; // kick out if not logged in
+            return;
+        }
+
+        // Fetch from Supabase
+        const { data, error } = await window.supabaseClient
+            .from('user_trips')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .order('created_at', { ascending: false });
+            
+        document.getElementById('loadingTrips').style.display = 'none';
+
+        if (error) {
+            console.error(error);
+            document.getElementById('noTrips').style.display = 'block';
+            document.getElementById('noTrips').innerHTML = `<p style="color:red;">Error loading trips: ${error.message}</p>`;
+            return;
+        }
+
+        if (data && data.length > 0) {
+            const container = document.getElementById('savedTrips');
+            container.style.display = 'flex';
+            data.forEach(trip => {
+                const tr = document.createElement('div');
+                tr.style = "padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.02);";
+                
+                const d = new Date(trip.created_at).toLocaleDateString();
+                const cost = trip.budget ? `₹${trip.budget} Budget` : 'Dynamic Budget';
+                const daysStr = trip.days ? trip.days + ' days' : '';
+                
+                tr.innerHTML = `
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: var(--primary-color); font-size: 1.2rem;">${trip.destination}</h4>
+                        <p style="margin: 0; font-size: 0.95rem; color: #555;">Saved on ${d} • ${daysStr} • ${cost}</p>
+                    </div>
+                    <button class="btn-primary-small" style="padding: 10px 20px; border-radius: 12px;" onclick="viewTrip('${trip.id}')">View Itinerary</button>
+                `;
+                container.appendChild(tr);
+                
+                // Save original trip data temporarily for viewing feature
+                localStorage.setItem('saved_trip_' + trip.id, JSON.stringify(trip.trip_data));
+            });
+        } else {
+            document.getElementById('noTrips').style.display = 'block';
+        }
+    } else {
+        // Fallback or not connected
+        document.getElementById('loadingTrips').style.display = 'none';
+        document.getElementById('noTrips').style.display = 'block';
+        document.getElementById('noTrips').innerHTML = `<p>Supabase connection required to view saved profiles.</p>`;
+    }
+});
+
+function viewTrip(id) {
+    const dataStr = localStorage.getItem('saved_trip_' + id);
+    if(dataStr) {
+        localStorage.setItem('tripResults', dataStr); // overwrite current buffer
+        localStorage.removeItem('weatherResults'); // Clear weather buffer to avoid mismatch
+        window.location.href = '/results'; // Jump explicitly to results page
+    }
+}
+</script>
+{% endblock %}
