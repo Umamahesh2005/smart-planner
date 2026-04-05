@@ -686,5 +686,6 @@ def parse_voice_intent():
         logging.error(f"Error parsing voice intent JSON: {e}")
         return jsonify({"error": "Invalid format returned by AI"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
